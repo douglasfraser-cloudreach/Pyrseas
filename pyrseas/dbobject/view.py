@@ -184,7 +184,7 @@ class MaterializedView(View):
         obj = MaterializedView(
             name, schema.name, inobj.pop('description', None),
             inobj.pop('owner', None), inobj.pop('privileges', []),
-            inobj.pop('definition', None))
+            inobj.pop('definition', None), inobj.pop('with_data', True))
         if "columns" in inobj:
             obj.columns = [Column(list(col.keys())[0], schema.name, name,
                                   i + 1,
@@ -226,5 +226,6 @@ class MaterializedView(View):
         defn = newdefn or self.definition
         if defn[-1:] == ';':
             defn = defn[:-1]
-        return ["CREATE %s %s AS\n   %s" % (
-                self.objtype, self.qualname(), defn)]
+        return ["CREATE %s %s AS\n   %s%s" % (
+                self.objtype, self.qualname(), defn,
+                not self.with_data and "\n  WITH NO DATA" or '')]
